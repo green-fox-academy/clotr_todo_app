@@ -30,19 +30,68 @@ public class todo {
           } else {
             addToList(args[1]);
           }
+          break;
+        case "-r":
+          if (args.length == 1) {
+            System.out.println("Nem lehetséges az eltávolítás: nem adott meg indexet!");
+            break;
+          } else if (!isNumeric(args[1])) {
+            System.out.println("Nem lehetséges az eltávolítás: a megadott index nem szám!");
+            break;
+          } else if ((Integer.parseInt(args[1])) > getNumberOfToDos()) {
+            System.out.println("Nem lehetséges az eltávolítás: túlindexelési probléma adódott!");
+            break;
+          } else {
+            removeFromList(args[1]);
+          }
+          break;
+        default:
+          System.out.println("Nem támogatott argumentum!");
+          System.out.println();
+          printHelp();
       }
     }
+  }
+
+  private static boolean isNumeric(String string) {
+    try {
+      Integer.parseInt(string);
+      return true;
+    } catch (NumberFormatException e) {
+      return false;
+    }
+  }
+
+
+  private static int getNumberOfToDos() {
+    List content = readFile(todoListPath);
+    return content.size();
+  }
+
+
+  private static void removeFromList(String arg) {
+    List content = readFile(todoListPath);
+    content.remove(Integer.parseInt(arg) - 1);
+    writeFile(content, todoListPath);
   }
 
   private static void addToList(String toDoItem) {
     List<String> content = new ArrayList<>();
     content.add(toDoItem);
-    writeFile(content, todoListPath);
+    appendFile(content, todoListPath);
+  }
+
+  private static void appendFile(List content, Path todoListPath) {
+    try {
+      Files.write(todoListPath, content, StandardOpenOption.APPEND);
+    } catch (IOException e) {
+      System.out.println("Unable to write file: " + todoListPath);
+    }
   }
 
   private static void writeFile(List content, Path todoListPath) {
     try {
-      Files.write(todoListPath, content, StandardOpenOption.APPEND);
+      Files.write(todoListPath, content);
     } catch (IOException e) {
       System.out.println("Unable to write file: " + todoListPath);
     }
@@ -84,3 +133,4 @@ public class todo {
 
   }
 }
+

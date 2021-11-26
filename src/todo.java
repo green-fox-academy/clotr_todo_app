@@ -38,11 +38,28 @@ public class todo {
           } else if (!isNumeric(args[1])) {
             System.out.println("Nem lehetséges az eltávolítás: a megadott index nem szám!");
             break;
-          } else if ((Integer.parseInt(args[1])) > getNumberOfToDos()) {
+          } else if ((Integer.parseInt(args[1])) > getNumberOfToDos() ||
+              (Integer.parseInt(args[1])) < 1) {
             System.out.println("Nem lehetséges az eltávolítás: túlindexelési probléma adódott!");
             break;
           } else {
             removeFromList(args[1]);
+          }
+          break;
+        case "-c":
+          if (args.length == 1) {
+            System.out.println("Nem lehetséges a feladat végrehajtása: nem adott meg indexet!");
+            break;
+          } else if (!isNumeric(args[1])) {
+            System.out.println("Nem lehetséges a feladat végrehajtása: a megadott index nem szám!");
+            break;
+          } else if ((Integer.parseInt(args[1])) > getNumberOfToDos() ||
+              (Integer.parseInt(args[1])) < 1) {
+            System.out.println(
+                "Nem lehetséges a feladat végrehajtása: túlindexelési probléma adódott!");
+            break;
+          } else {
+            completeTask(args[1]);
           }
           break;
         default:
@@ -51,6 +68,13 @@ public class todo {
           printHelp();
       }
     }
+  }
+
+  private static void completeTask(String arg) {
+    List<String> content = readFile(todoListPath);
+    String newContentRow = content.get(Integer.parseInt(arg) - 1);
+    content.set(Integer.parseInt(arg) - 1, newContentRow.replace("//U", "//C"));
+    writeFile(content, todoListPath);
   }
 
   private static boolean isNumeric(String string) {
@@ -77,7 +101,7 @@ public class todo {
 
   private static void addToList(String toDoItem) {
     List<String> content = new ArrayList<>();
-    content.add(toDoItem);
+    content.add(toDoItem + "//U");
     appendFile(content, todoListPath);
   }
 
@@ -106,7 +130,14 @@ public class todo {
       System.out.println("Nincs mára tennivalód!");
     } else {
       for (int i = 0; i < list.size(); i++) {
-        System.out.println(i + 1 + " - " + (list.get(i)).toString());
+        int rowSize = (list.get(i)).toString().length();
+        if ((list.get(i)).toString().contains("//U")) {
+          System.out.println(
+              i + 1 + " - " + " [ ] " + ((list.get(i)).toString()).substring(0, rowSize - 3));
+        } else if (((list.get(i)).toString().contains("//C"))) {
+          System.out.println(
+              i + 1 + " - " + " [x] " + ((list.get(i)).toString()).substring(0, rowSize - 3));
+        }
       }
     }
   }
